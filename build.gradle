@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'antlr'
+    id 'application'
+}
+
+
+mainClassName = 'example.antlr.Main'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    antlr "org.antlr:antlr:3.5.2"
+    implementation "org.antlr:antlr-runtime:3.5.2"
+}
+
+generateGrammarSource {
+    maxHeapSize = "128m"
+    outputDirectory = file("${projectDir}/src/generated/java")
+
+}
+
+clean {
+    delete file("${projectDir}/src/generated")
+}
+
+sourceSets {
+    generated{
+        java.srcDir "${projectDir}/src/generated/java/"
+    }
+
+    main {
+        java.srcDirs += "${projectDir}/src/generated/java/"
+    }
+}
+
+compileJava.dependsOn generateGrammarSource
+
+jar {
+    archiveBaseName = 'antlr-example'
+    archiveVersion =  '0.1.0'
+}

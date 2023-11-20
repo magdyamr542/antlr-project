@@ -1,0 +1,18 @@
+{
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "[gradle]": {
+    "editor.defaultFormatter": "naco-siren.gradle-language",
+    "editor.formatOnSave": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/gradle": true,
+    "**/.gradle": true,
+    "**/build": true
+  }
+}
