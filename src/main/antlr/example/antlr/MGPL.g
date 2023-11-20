@@ -5,13 +5,35 @@ options {
    k = 1;
 }
 
-@header {
+@parser::header {
 package example.antlr;
 }
 
 @lexer::header {
 package example.antlr;
 }
+
+@parser::members {
+  @Override
+    public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        throw new RuntimeException("Parser error:\n" + hdr+" "+msg);
+    }
+}
+
+@lexer::members {
+  @Override
+    public void displayRecognitionError(String[] tokenNames,
+                                        RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        throw new RuntimeException("Parser error:\n" + hdr+" "+msg);
+    }
+}
+
+
 
 /*------------------------------------------------------------------
  * PARSER RULES
