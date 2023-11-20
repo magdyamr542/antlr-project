@@ -4,12 +4,13 @@ plugins {
     id 'application'
 }
 
+application {
+    mainClassName = 'example.antlr.Main'
+}
 
-mainClassName = 'example.antlr.Main'
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
