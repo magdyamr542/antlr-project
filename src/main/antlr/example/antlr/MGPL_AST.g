@@ -13,6 +13,25 @@ tokens {
   BLOCKS;
   STATEMENT_BLOCK;
   DECLARATIONS;
+  INIT;
+  OBJECT;
+  TYPE;
+  COUNT;
+  ATTRLIST;
+  ATTR;
+  EVENT;
+  CONDITION;
+  THEN;
+  ELSE;
+  STMTBLOCK;
+  HEADER;
+  BODY;
+  AFTERITERATION;
+  CONDITION;
+  INIT;
+  ASSIGNMENT;
+  VALUE;
+  INDEX;
 }
 
 @parser::header {
@@ -47,7 +66,7 @@ package example.antlr;
  *------------------------------------------------------------------*/
 
 prog: 'game' Idf '(' attrAssList? ')' decl* stmtBlock block* 
--> ^(GAME ^(DECLARATIONS decl*) ^(STATEMENT_BLOCK stmtBlock) ^(BLOCKS block*)) ;
+-> ^(GAME attrAssList? ^(DECLARATIONS decl*) ^(STATEMENT_BLOCK stmtBlock) ^(BLOCKS block*)) ;
 
 decl: varDecl ';'! | objDecl ';'!;
 
@@ -55,60 +74,63 @@ varDecl: 'int' Idf varDecl2 -> ^(VAR Idf varDecl2?);
 
 varDecl2: init? | '[' Number ']' ;
 
-init: '=' expr;
+init: '=' expr -> ^(INIT expr);
 
-objDecl: objType Idf objDecl2;
+objDecl: objType Idf objDecl2 -> ^(OBJECT ^(TYPE objType) Idf objDecl2?);
 
-objDecl2: '(' attrAssList ')' | '[' Number ']';
+objDecl2: '(' attrAssList ')' | '[' Number ']' -> ^(COUNT Number);
 
 objType: 'rectangle' | 'triangle' | 'circle';
 
-attrAssList: attrAss attrAssList2; 
+attrAssList: attrAss (',' attrAss)* -> ^(ATTRLIST attrAss+); 
 
-attrAssList2: ',' attrAssList | /* epsilon */;
-
-attrAss: Idf '=' expr;
+attrAss: Idf '=' expr -> ^(ATTR Idf ^(VALUE expr));
 
 block: animBlock | eventBlock;
 
-animBlock: 'animation' Idf '(' objType Idf ')' stmtBlock;
+animBlock: 'animation' Idf '(' objType Idf ')' stmtBlock
+            -> ^('animation' Idf ^(OBJECT ^(TYPE objType) Idf) stmtBlock) ;
 
-eventBlock: 'on' keyStroke stmtBlock;
+eventBlock: 'on' keyStroke stmtBlock -> ^(EVENT ^('on' keyStroke) stmtBlock);
 
 keyStroke: 'space' | 'leftarrow' | 'rightarrow' | 'uparrow' | 'downarrow';
 
-stmtBlock: '{' stmt* '}';
+stmtBlock: '{' stmt* '}' -> ^(STMTBLOCK stmt*);
 
-stmt: ifStmt | forStmt | assStmt ';';
+stmt: ifStmt | forStmt | assStmt ';'!;
 
-ifStmt: 'if' '(' expr ')' stmtBlock ('else' stmtBlock)?;
+ifStmt: 'if' '(' expr ')' s1=stmtBlock ('else' s2=stmtBlock)?
+      -> ^('if' ^(CONDITION expr) ^(THEN $s1) ^(ELSE $s2)?);
 
-forStmt: 'for' '(' assStmt ';' expr ';' assStmt ')' stmtBlock;
+forStmt: 'for' '(' assStmt ';' expr ';' assStmt ')' stmtBlock
+		-> ^('for' ^(HEADER ^(INIT assStmt) ^(CONDITION expr) ^(AFTERITERATION assStmt)) ^(BODY stmtBlock));
 
-assStmt: var '=' expr;
 
-var: Idf var2 ;
+assStmt: var '=' expr -> ^(ASSIGNMENT var ^(VALUE expr));
 
-var2: '[' expr ']' var3 | '.' Idf | /* epsilon */ ;
+var: Idf var2? ->  ^(VAR Idf var2?);
 
-var3: '.' Idf | /* epsilon */ ;
+var2: '.' Idf | '[' expr ']' var3? -> ^(INDEX expr) var3? ; 
+
+var3: '.' Idf ;
 
 // expr: Number | Var | Var touches Var | - Expr | ! Expr | ( Expr ) | Expr Op Expr 
 // ▪ Unäre Operatoren: - und !
 // ▪ Multiplikative Operatoren: * und /
-// ▪ Additive Operatoren: + und –
+// ▪ Additive Operatoren: + und -
 // ▪ Relationale Operatoren: ==, <= und <
 // ▪ Konjunktion: &&
 // ▪ Disjunktion: ||
+// '*' and '/' have higher precedence than '+' and '-'. So we place them closer to the operands.
 
 expr:  orexpr;
-orexpr: andexpr ('||' andexpr)*;
-andexpr: relexpr ('&&' relexpr)*;
-relexpr: addexpr (relop addexpr)*;
-addexpr: multexpr (addop multexpr)*;
-multexpr: unexpr (multop unexpr)*;
+orexpr: andexpr ('||'^ andexpr)*;
+andexpr: relexpr ('&&'^ relexpr)*;
+relexpr: addexpr (relop^ addexpr)*;
+addexpr: multexpr (addop^ multexpr)*;
+multexpr:unexpr (multop^ unexpr)*;
 unexpr: unop? basicexpr;
-basicexpr: Number | '(' expr ')' | var basicexpr2;
+basicexpr: Number | '('! expr ')'! | var basicexpr2;
 basicexpr2: 'touches' var | /* epsilon */ ;
 
 op: '||' | '&&' | '==' | '<' | '<=' | '+' | '-' | '*' | '/';
