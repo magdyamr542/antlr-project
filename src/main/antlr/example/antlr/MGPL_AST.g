@@ -1,8 +1,18 @@
-grammar MGPL;
+grammar MGPL_AST;
 
 options {
    backtrack = false;
    k = 1;
+   output = AST;
+}
+
+// These are the imaginary token used to construct the AST.
+tokens {
+  VAR;
+  GAME;
+  BLOCKS;
+  STATEMENT_BLOCK;
+  DECLARATIONS;
 }
 
 @parser::header {
@@ -13,6 +23,7 @@ package example.antlr;
 package example.antlr;
 }
 
+// Override the error handnlers. We want to exit with an exception directly when we find a problem.
 @parser::members {
   @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
@@ -31,17 +42,16 @@ package example.antlr;
     }
 }
 
-
-
 /*------------------------------------------------------------------
  * PARSER RULES
  *------------------------------------------------------------------*/
 
-prog: 'game' Idf '(' attrAssList? ')' decl* stmtBlock block* EOF;
+prog: 'game' Idf '(' attrAssList? ')' decl* stmtBlock block* 
+-> ^(GAME ^(DECLARATIONS decl*) ^(STATEMENT_BLOCK stmtBlock) ^(BLOCKS block*)) ;
 
-decl: varDecl ';' | objDecl ';';
+decl: varDecl ';'! | objDecl ';'!;
 
-varDecl: 'int' Idf varDecl2;
+varDecl: 'int' Idf varDecl2 -> ^(VAR Idf varDecl2?);
 
 varDecl2: init? | '[' Number ']' ;
 
