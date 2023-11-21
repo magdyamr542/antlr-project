@@ -15,8 +15,7 @@ package example.antlr;
 
 @parser::members {
   @Override
-    public void displayRecognitionError(String[] tokenNames,
-                                        RecognitionException e) {
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         String hdr = getErrorHeader(e);
         String msg = getErrorMessage(e, tokenNames);
         throw new RuntimeException("Parser error:\n" + hdr+" "+msg);
@@ -25,8 +24,7 @@ package example.antlr;
 
 @lexer::members {
   @Override
-    public void displayRecognitionError(String[] tokenNames,
-                                        RecognitionException e) {
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         String hdr = getErrorHeader(e);
         String msg = getErrorMessage(e, tokenNames);
         throw new RuntimeException("Parser error:\n" + hdr+" "+msg);

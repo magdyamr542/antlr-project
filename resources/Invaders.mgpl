@@ -1,6 +1,6 @@
 // Set up game window
 
-gam Invaders(width = 500, height = 500, x = 300, y = 200, speed = 100)
+game Invaders(width = 500, height = 500, x = 300, y = 200, speed = 100)
 
 // Set up some global variables
 int alien_increment = 6;

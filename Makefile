@@ -9,8 +9,14 @@ build:
 test-invaders:
 	$(GRADLE_RUN_CMD) --args ./resources/Invaders.mgpl
 
+test-invaders-ast:
+	$(GRADLE_RUN_CMD) --args="--ast ./resources/Invaders.mgpl"
+
 test-pong:
 	$(GRADLE_RUN_CMD) --args ./resources/Pong.mgpl
+
+test-pong-ast:
+	$(GRADLE_RUN_CMD) --args="--ast ./resources/Pong.mgpl"
 
 
 install-gui:
